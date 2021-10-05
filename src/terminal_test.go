@@ -9,6 +9,30 @@ import (
 	"github.com/junegunn/fzf/src/util"
 )
 
+func TestExecuteChangeQuery(t *testing.T) {
+	if !util.IsWindows() {
+		t.Skip("assumes windows platform")
+	}
+
+	// Use case: change query to the file extension of current item/filename
+	// `fzf --delimiter "\." --bind "ctrl-x:change-query(echo {2})"`
+	template := "echo {2}"
+	delim := "."
+	currentItem := newItem("test.txt")
+	want := `"txt"`
+
+	terminal := NewTerminal(&Options{Delimiter: Delimiter{str: &delim}}, &util.EventBox{})
+	terminal.merger = NewMerger(nil, [][]Result{{Result{item: currentItem}}}, false, false)
+	// assert `terminal.merger.lists[0][0].item` == `terminal.currentItem()`
+
+	terminal.executeChangeQuery(template)
+	result := string(terminal.input)
+
+	if result != want {
+		t.Errorf("expected: %q, actual: %q", want, result)
+	}
+}
+
 func newItem(str string) *Item {
 	bytes := []byte(str)
 	trimmed, _, _ := extractColor(str, nil, nil)
