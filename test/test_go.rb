@@ -1292,6 +1292,13 @@ class TestGoFZF < TestBase
       `#{FZF} -fhehe -x -n 2.. --with-nth 2,1,1 --no-ansi < #{tempname}`.chomp
   end
 
+  def test_with_nth_delimiter
+    writelines(tempname, ['colon delimited data', 'a:b:c:'])
+    assert_equal \
+      'b:a:a:',
+      `#{FZF} --filter=":" --no-sort --delimiter ":" --with-nth 2,1,1 < #{tempname}`.chomp
+  end
+
   def test_exit_0_exit_code
     `echo foo | #{FZF} -q bar -0`
     assert_equal 1, $CHILD_STATUS.exitstatus
