@@ -1295,7 +1295,7 @@ class TestGoFZF < TestBase
   def test_with_nth_delimiter
     writelines(tempname, ['colon delimited data', 'a:b:c:'])
     assert_equal \
-      'b:a:a:',
+      'b:a:a',
       `#{FZF} --filter=":" --no-sort --delimiter ":" --with-nth 2,1,1 < #{tempname}`.chomp
   end
 

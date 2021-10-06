@@ -120,6 +120,7 @@ func Run(opts *Options, version string, revision string) {
 			}
 			trans := Transform(tokens, opts.WithNth)
 			transformed := joinTokens(trans)
+			transformed = trimTrailingDelimiter(transformed, opts.Delimiter)
 			if len(header) < opts.HeaderLines {
 				header = append(header, transformed)
 				eventBox.Set(EvtHeader, header)
