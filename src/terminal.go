@@ -1699,17 +1699,7 @@ func replacePlaceholder(template string, stripAnsi bool, delimiter Delimiter, pr
 				tokens := Tokenize(item.AsString(stripAnsi), delimiter)
 				trans := Transform(tokens, ranges)
 				str := joinTokens(trans)
-
-				// trim the last delimiter
-				if delimiter.str != nil {
-					str = strings.TrimSuffix(str, *delimiter.str)
-				} else if delimiter.regex != nil {
-					delims := delimiter.regex.FindAllStringIndex(str, -1)
-					// make sure the delimiter is at the very end of the string
-					if len(delims) > 0 && delims[len(delims)-1][1] == len(str) {
-						str = str[:delims[len(delims)-1][0]]
-					}
-				}
+				str = trimTrailingDelimiter(str, delimiter)
 
 				if !flags.preserveSpace {
 					str = strings.TrimSpace(str)

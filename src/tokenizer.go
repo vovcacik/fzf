@@ -40,6 +40,20 @@ func (d Delimiter) String() string {
 	return fmt.Sprintf("Delimiter{regex: %v, str: &%q}", d.regex, *d.str)
 }
 
+// Trims the last delimiter if any.
+func trimTrailingDelimiter(s string, delimiter Delimiter) string {
+	if delimiter.str != nil {
+		return strings.TrimSuffix(s, *delimiter.str)
+	} else if delimiter.regex != nil {
+		delims := delimiter.regex.FindAllStringIndex(s, -1)
+		// make sure the delimiter is at the very end of the string
+		if len(delims) > 0 && delims[len(delims)-1][1] == len(s) {
+			return s[:delims[len(delims)-1][0]]
+		}
+	}
+	return s
+}
+
 func newRange(begin int, end int) Range {
 	if begin == 1 {
 		begin = rangeEllipsis
