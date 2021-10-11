@@ -1796,7 +1796,7 @@ func (t *Terminal) executeChangeQuery(template string) {
 	newQuery := newQuerySB.String()
 	newQuery = strings.TrimSuffix(newQuery, "\n")
 	newQuery = strings.ReplaceAll(newQuery, "\n", " ")
-	t.input = []rune(newQuerySB.String())
+	t.input = []rune(newQuery)
 	t.cx = len(t.input)
 	t.executing.Set(false)
 	cleanTemporaryFiles()
