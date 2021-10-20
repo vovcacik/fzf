@@ -47,7 +47,7 @@ func trimTrailingDelimiter(s string, delimiter Delimiter) string {
 		return strings.TrimSuffix(s, *delimiter.str)
 	} else if delimiter.regex != nil {
 		delims := delimiter.regex.FindAllStringIndex(s, -1)
-		fmt.Printf("delims=%s", delims)
+		fmt.Printf("delims=%v", delims)
 		// make sure the delimiter is at the very end of the string
 		if len(delims) > 0 && delims[len(delims)-1][1] == len(s) {
 			return s[:delims[len(delims)-1][0]]
