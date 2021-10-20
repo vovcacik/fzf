@@ -179,9 +179,9 @@ func Run(opts *Options, version string, revision string) {
 				func(runes []byte) bool {
 					item := Item{}
 					if chunkList.trans(&item, runes) {
-						fmt.Printf("item before=%q,\n", item.text)
+						fmt.Printf("item before=%#v,\n", item.text)
 						if result, _, _ := pattern.MatchItem(&item, false, slab); result != nil {
-							fmt.Printf("item after=%q,\n", item.text)
+							fmt.Printf("item after=%#v,\n", item.text)
 							opts.Printer(item.text.ToString())
 							found = true
 						}
