@@ -118,6 +118,7 @@ func Run(opts *Options, version string, revision string) {
 					}
 				}
 			}
+			fmt.Printf("trans=%s", string(data))
 			trans := Transform(tokens, opts.WithNth)
 			transformed := joinTokens(trans)
 			transformed = trimTrailingDelimiter(transformed, opts.Delimiter)
