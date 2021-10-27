@@ -288,6 +288,7 @@ func TestUnixCommands(t *testing.T) {
 		{give{`grep {} ~/test`, ``, newItems(`~`)}, want{output: `grep '~' ~/test`}},
 
 		// 2) problematic examples
+		// (not necessarily unexpected)
 
 		// paths that need to expand some part of it won't work (special characters and variables)
 		{give{`cat {}`, ``, newItems(`~/test`)}, want{output: `cat '~/test'`}},
@@ -315,6 +316,7 @@ func TestWindowsCommands(t *testing.T) {
 		{give{`rg -- {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `rg -- ^"\^"C:\\test.txt\^"^"`}},
 
 		// 2) problematic examples
+		// (not necessarily unexpected)
 
 		// notepad++'s parser can't handle `-n"12"` generate by fzf, expects `-n12`
 		{give{`notepad++ -n{1} {2}`, ``, newItems(`12	C:\Work\Test Folder\File.txt`)}, want{output: `notepad++ -n^"12^" ^"C:\\Work\\Test Folder\\File.txt^"`}},
@@ -327,6 +329,7 @@ func TestWindowsCommands(t *testing.T) {
 
 		// the "file" flag in the pattern won't create *.bat or *.cmd file so the command in the output tries to edit the file, instead of executing it
 		// the temp file contains: `cat "C:\test.txt"`
+		// TODO this should actually work
 		{give{`cmd /c {f}`, ``, newItems(`cat "C:\test.txt"`)}, want{match: `^cmd /c .*\fzf-preview-[0-9]{9}$`}},
 	}
 	testCommands(t, tests)
