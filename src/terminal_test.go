@@ -354,6 +354,9 @@ func TestPowershellCommands(t *testing.T) {
 		// example of mandatorily escaped double quote in the output, otherwise `rg -- '"C:\\test.txt"'` is not matching for the double quotes around the path
 		{give{`rg -- {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `rg -- '\"C:\\test.txt\"'`}},
 
+		// example of escaping single quotes
+		{give{`rg -- {}`, ``, newItems(`'foobar'`)}, want{output: `rg -- '''foobar'''`}},
+
 		// 2) problematic examples
 		// ("problematic" from users perspective, fzf is trying to be safe, so failure is expected)
 
