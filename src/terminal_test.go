@@ -332,6 +332,48 @@ func TestWindowsCommands(t *testing.T) {
 	testCommands(t, tests)
 }
 
+// purpose of this test is to demonstrate some shortcomings of fzf's templating system on Windows in Powershell
+func TestPowershellCommands(t *testing.T) {
+	if !util.IsWindows() {
+		t.SkipNow()
+	}
+
+	tests := []testCase{
+		// reference: give{template, query, items}, want{output OR match}
+
+		// 1) working examples
+
+		// example of redundantly escaped backslash in the output, besides looking bit ugly, it won't cause any issue
+		{give{`Get-Content {}`, ``, newItems(`C:\test.txt`)}, want{output: `Get-Content 'C:\\test.txt'`}},
+		{give{`rg -- "package" {}`, ``, newItems(`.\test.go`)}, want{output: `rg -- "package" '.\\test.go'`}},
+		// example of mandatorily escaped backslash in the output, otherwise `rg -- "C:\test.txt"` is matching for tabulator
+		{give{`rg -- {}`, ``, newItems(`C:\test.txt`)}, want{output: `rg -- 'C:\\test.txt'`}},
+		// example of mandatorily escaped double quote in the output, otherwise `rg -- '"C:\\test.txt"'` is not matching for the double quotes around the path
+		{give{`rg -- {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `rg -- '\"C:\\test.txt\"'`}},
+
+		// 2) problematic examples
+		// ("problematic" from users perspective, fzf is trying to be safe, so failure is expected)
+
+		// Get-Content (i.e. cat alias) is parsing `\"` as a part of the file path, returns an error:
+		// Get-Content : Cannot find drive. A drive with the name '\"C' does not exist.
+		{give{`cat {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `cat '\"C:\\test.txt\"'`}},
+		// the following command gets echoed instead of evaluated
+		{give{`powershell -NoProfile -Command {}`, ``, newItems(`cat "C:\test.txt"`)}, want{output: `powershell -NoProfile -Command 'cat \"C:\\test.txt\"'`}},
+
+		// the "file" flag in the pattern won't create *.ps1 file so the powershell will offload this "unknown" filetype
+		// to explorer, which will prompt user to pick editing program for the fzf-preview file
+		// the temp file contains: `cat "C:\test.txt"`
+		// TODO this should actually work
+		{give{`powershell -NoProfile -Command {f}`, ``, newItems(`cat "C:\test.txt"`)}, want{match: `^powershell -NoProfile -Command .*\fzf-preview-[0-9]{9}$`}},
+	}
+
+	// to force powershell-style escaping we temporarily set environment variable that fzf honors
+	shellBackup := os.Getenv("SHELL")
+	os.Setenv("SHELL", "powershell")
+	testCommands(t, tests)
+	os.Setenv("SHELL", shellBackup)
+}
+
 /*
 	Test typical valid placeholders and parsing of them.
 
