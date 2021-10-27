@@ -39,13 +39,22 @@ func ExecCommand(command string, setpgid bool) *exec.Cmd {
 // NOTE: For "powershell", we should ideally set output encoding to UTF8,
 // but it is left as is now because no adverse effect has been observed.
 func ExecCommandWith(shell string, command string, setpgid bool) *exec.Cmd {
-	var commandline string
 	if strings.Contains(shell, "cmd") {
-		commandline = fmt.Sprintf(` /v:on/s/c "%s"`, command)
+		cmd := exec.Command(shell)
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			HideWindow:    false,
+			CmdLine:       fmt.Sprintf(` /v:on/s/c "%s"`, command),
+			CreationFlags: 0,
+		}
+		return cmd
 	} else if strings.Contains(shell, "pwsh") || strings.Contains(shell, "powershell") {
-		commandline = fmt.Sprintf(` -NoProfile -Command "& { %s }"`, command)
-	}
-	if len(commandline) == 0 {
+		cmd := exec.Command(shell, "-NoProfile", "-Command", command)
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			HideWindow:    false,
+			CreationFlags: 0,
+		}
+		return cmd
+	} else {
 		cmd := exec.Command(shell, "-c", command)
 		cmd.SysProcAttr = &syscall.SysProcAttr{
 			HideWindow:    false,
@@ -53,13 +62,6 @@ func ExecCommandWith(shell string, command string, setpgid bool) *exec.Cmd {
 		}
 		return cmd
 	}
-	cmd := exec.Command(shell)
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		HideWindow:    false,
-		CmdLine:       commandline,
-		CreationFlags: 0,
-	}
-	return cmd
 }
 
 // KillCommand kills the process for the given command
