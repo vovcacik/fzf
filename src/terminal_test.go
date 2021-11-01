@@ -352,7 +352,7 @@ func TestPowershellCommands(t *testing.T) {
 		// example of mandatorily escaped backslash in the output, otherwise `rg -- "C:\test.txt"` is matching for tabulator
 		{give{`rg -- {}`, ``, newItems(`C:\test.txt`)}, want{output: `rg -- 'C:\\test.txt'`}},
 		// example of mandatorily escaped double quote in the output, otherwise `rg -- '"C:\\test.txt"'` is not matching for the double quotes around the path
-		{give{`rg -- {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `rg -- '\"C:\\test.txt\"'`}},
+		{give{`rg -- {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `rg -- '\\\"C:\\test.txt\\\"'`}},
 
 		// example of escaping single quotes
 		{give{`rg -- {}`, ``, newItems(`'foobar'`)}, want{output: `rg -- '''foobar'''`}},
@@ -362,9 +362,9 @@ func TestPowershellCommands(t *testing.T) {
 
 		// Get-Content (i.e. cat alias) is parsing `\"` as a part of the file path, returns an error:
 		// Get-Content : Cannot find drive. A drive with the name '\"C' does not exist.
-		{give{`cat {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `cat '\"C:\\test.txt\"'`}},
+		{give{`cat {}`, ``, newItems(`"C:\test.txt"`)}, want{output: `cat '\\\"C:\\test.txt\\\"'`}},
 		// the following command gets echoed instead of evaluated
-		{give{`powershell -NoProfile -Command {}`, ``, newItems(`cat "C:\test.txt"`)}, want{output: `powershell -NoProfile -Command 'cat \"C:\\test.txt\"'`}},
+		{give{`powershell -NoProfile -Command {}`, ``, newItems(`cat "C:\test.txt"`)}, want{output: `powershell -NoProfile -Command 'cat \\\"C:\\test.txt\\\"'`}},
 
 		// the "file" flag in the pattern won't create *.ps1 file so the powershell will offload this "unknown" filetype
 		// to explorer, which will prompt user to pick editing program for the fzf-preview file
